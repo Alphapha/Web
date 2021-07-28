@@ -1,0 +1,4 @@
+<?phpsession_start();header("Content-type:text/html;charset=utf-8");$link = mysqli_connect('127.0.0.1','yang','123','ai');if (!$link) {	die("连接失败:".mysqli_connect_error());}$title = $_POST['title'];$tag1 = $_POST['tag'];$digest = $_POST['digest'];
+$ip = $_SERVER['REMOTE_ADDR'];
+date_default_timezone_set('PRC');
+$date = date('Y-m-d H:i:s',time());if($title == "" || $digest == "" || tag == ""){	echo "<script>alert('没有标题没有内容没有标签是不被允许的');window.location.href='conan.html'</script>";}else{	$sql= "insert into conan(title, tag, digest, ip, date) values('$title','$tag','$digest','$ip','$date')";//插入数据库if(!(mysqli_query($link,$sql))){	echo "<script>alert('Error,Try again!');window.location.href='conan.html'</script>";}else{	echo "<script>alert('Success!');window.location.href='index.html'</script>";}}?>

@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="ajax分页,jquery,php" />
+<meta name="description" content="jquery+ajax+msql+php上拉加载或者jquery+ajax+msql+php滚动条向下滚动加载" />
+<title>jquery+ajax+msql+php上拉加载或者jquery+ajax+msql+php滚动条向下滚动加载</title>
+ 
+<style type="text/css">
+ 
+ 
+body{
+	width:100%;
+	height:auto;
+	margin:0;
+	padding:0;
+}
+ 
+#main{
+	width:100%;
+	margin:0 auto;
+	height:auto;
+	text-align:center;
+	
+}
+ 
+.nodata{
+	width:100%;
+	height:auto;
+	
+}
+
+#list ul li{width:80%; height:260px; display:inline-block;margin: 10px;border: #000000 0.0625rem solid;list-style: none;text-align: left;}
+#list ul li img{width:240px; height:240px;margin: 10px;border: #000000 solid 0.0625rem;}
+/* #list ul li p{line-height:22px} */
+.info{border: #000000 solid 1px;height: 240px;width: 240px;float: left;margin: 10px;} 
+.info1{float: left;}
+#nodata{width:120px; height:32px; line-height:32px; border:1px solid #d3d3d3; left:42%; text-align:center; background:#f7f7f7 url(loading.gif) no-repeat 8px 8px;-moz-box-shadow:1px 1px 2px rgba(0,0,0,.2); -webkit-box-shadow:1px 1px 2px rgba(0,0,0,.2); box-shadow:1px 1px 2px rgba(0,0,0,.2);}
+ 
+</style>
+<script type="text/javascript" src="http://libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript">
+var curPage = 1; //当前页码
+var total,pageSize,totalPage;
+//获取数据
+function getData(page){ 
+	$.ajax({
+		type: 'POST',
+		url: 'gin.php',
+		data: {'pageNum':page-1},
+		dataType:'json',
+		afterSend:function(){
+			$("#list").append("<li id='loading'>loading</li>");
+		},
+		success:function(json){
+			//$("#list ul").empty();
+			total = json.total; //总记录数
+			pageSize = json.pageSize; //每页显示条数
+			curPage = page; //当前页
+			totalPage = json.totalPage; //总页数
+			var li = "";
+			var list = json.list;
+			$.each(list,function(index,array){ //遍历json数据列
+				li += "<li><a target='blank' href='http://credit.lawyerpass.com/"+array['ttt']+"'><div class='info1'><img src='"+array['img']+"'></div><div class='info'>"+array['xm']+"<br><br>"+array['zyjg']+"</div></a></li>";
+			});
+			$("#list ul").append(li);
+		},
+		complete:function(){ //生成分页条
+			//getPageBar();
+		},
+		error:function(){
+			alert("数据加载失败");
+		}
+	});
+}
+ 
+//获取分页条
+function getPageBar(){
+	//页码大于最大页数
+	if(curPage>totalPage) curPage=totalPage;
+	//页码小于1
+	if(curPage<1) curPage=1;
+	pageStr = "<span>共"+total+"条</span><span>"+curPage+"/"+totalPage+"</span>";
+	
+	//如果是第一页
+	if(curPage==1){
+		pageStr += "<span>首页</span><span>上一页</span>";
+	}else{
+		pageStr += "<span><a href='javascript:void(0)' rel='1'>首页</a></span><span><a href='javascript:void(0)' rel='"+(curPage-1)+"'>上一页</a></span>";
+	}
+	
+	//如果是最后页
+	if(curPage>=totalPage){
+		pageStr += "<span>下一页</span><span>尾页</span>";
+	}else{
+		pageStr += "<span><a href='javascript:void(0)' rel='"+(parseInt(curPage)+1)+"'>下一页</a></span><span><a href='javascript:void(0)' rel='"+totalPage+"'>尾页</a></span>";
+	}
+		
+	$("#pagecount").html(pageStr);
+}
+ 
+</script>
+<script type="text/javascript">
+		getData(1);
+		var i = 1;
+        $(document).ready(function() {
+            $(window).scroll(function() {
+ 
+				if(totalPage-i>0){
+					//滚动条到达底部加载
+					if ($(document).scrollTop() >= $(document).height() - $(window).height()) {
+						if(totalPage-i>0){
+							setTimeout(function() { 
+								$('#list').append(getData(i));
+							}, 5); //控制滑动一次加载个数
+								i++;
+						}
+					}
+					
+				}else{
+							$(".nodata").html("没有更多数据了...");
+							setTimeout(function() { 
+								$(".nodata").hide();
+							}, 100000000000); 	//控制最后文字消失时间
+				}
+            });
+        });
+</script>
+</head>
+<body>
+<div id="main">
+  	
+   	<div id="list">
+    	<ul></ul>
+    </div>
+   
+	<div class="nodata"><img src="img/01.jpg"/></div>
+</div>
+<script type="text/javascript"> 
+ 
+</script> 
+</body>
+</html>
+
